@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Malaysia Address Generator</title>
+  <meta name="description" content="Unlimited Realistic Malaysia Address Generator">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0d14;
+      --surface: #111520;
+      --surface2: #181e2e;
+      --border: rgba(255,255,255,0.07);
+      --accent: #e8c547;
+      --accent2: #f97316;
+      --text: #e8ecf4;
+      --muted: #6b7694;
+      --success: #34d399;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(232,197,71,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Ad Banner */
+    .ad-banner {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .ad-banner-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 16px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .ad-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 40px 20px 24px;
+    }
+
+    .flag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 14px 6px 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+
+    .flag-badge .flag-emoji { font-size: 1.2rem; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.5));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      padding: 0 16px 24px;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Generate Button */
+    .generate-btn {
+      width: 100%;
+      position: relative;
+      background: var(--accent);
+      color: #0a0d14;
+      border: none;
+      padding: 16px 24px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .generate-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(232,197,71,0.3);
+    }
+    .generate-btn:active { transform: scale(0.98); }
+
+    .btn-icon {
+      font-size: 1.1rem;
+      transition: transform 0.4s ease;
+    }
+    .generate-btn:hover .btn-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Address Card Container */
+    .address-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      animation: fadeUp 0.35s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Header Strip */
+    .card-header {
+      background: var(--surface2);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-header-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .card-header-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--success);
+      font-weight: 500;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+    }
+
+    /* Fields */
+    .field-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .field-row {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.2s;
+    }
+    .field-row:hover { border-color: rgba(255,255,255,0.14); }
+
+    .field-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .field-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    /* Copy Button */
+    .copy-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      align-self: center;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .copy-btn.copied {
+      background: rgba(52,211,153,0.15);
+      border-color: rgba(52,211,153,0.3);
+      color: var(--success);
+    }
+
+    /* Full Address Block */
+    .full-addr-row {
+      margin: 0 16px 16px;
+      background: rgba(232,197,71,0.05);
+      border: 1px solid rgba(232,197,71,0.15);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .full-addr-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .full-addr-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.88rem;
+      color: #e8ecf4;
+      line-height: 1.7;
+      white-space: pre-line;
+      flex: 1;
+    }
+    .full-addr-footer {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      gap: 8px;
+    }
+    .copy-full-btn {
+      flex: 1;
+      background: var(--accent);
+      color: #0a0d14;
+      border: none;
+      padding: 9px 14px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.04em;
+    }
+    .copy-full-btn:hover { opacity: 0.85; }
+    .copy-full-btn.copied {
+      background: var(--success);
+    }
+
+    /* Footer */
+    .footer {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 20px 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    .footer strong { color: var(--accent); font-family: 'Syne', sans-serif; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Ad Banner -->
+  <div class="ad-banner">
+    <div class="ad-banner-inner">
+      <div class="ad-dot"></div>
+      Advertisement — Adsterra Banner
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="flag-badge">
+      <span class="flag-emoji">🇲🇾</span>
+      Malaysia · MY
+    </div>
+    <h1>Address Generator</h1>
+    <p class="subtitle">Realistic addresses · Unlimited · Free</p>
+  </div>
+
+  <div class="main">
+
+    <button class="generate-btn" id="generateBtn">
+      <span class="btn-icon">⟳</span>
+      Generate New Address
+    </button>
+
+    <div id="addressCard" class="address-card"></div>
+
+  </div>
+
+  <!-- Bottom Ad Banner -->
+  <div class="ad-banner" style="border-top: 1px solid var(--border); border-bottom: none; margin-top: auto;">
+    <div class="ad-banner-inner">
+      <div class="ad-dot"></div>
+      Advertisement — Adsterra Banner
+    </div>
+  </div>
+
+  <div class="footer">
+    Made By <strong>KDex</strong> &nbsp;·&nbsp; Malaysia Address Generator
+  </div>
+
+  <script>
+    const CITIES_DB = [
+      { city: "Kuala Lumpur",  state: "Wilayah Persekutuan",  minZip: 50000, maxZip: 60000 },
+      { city: "Petaling Jaya", state: "Selangor",             minZip: 46000, maxZip: 47400 },
+      { city: "Shah Alam",     state: "Selangor",             minZip: 40000, maxZip: 40700 },
+      { city: "Subang Jaya",   state: "Selangor",             minZip: 47500, maxZip: 47650 },
+      { city: "Klang",         state: "Selangor",             minZip: 41000, maxZip: 42100 },
+      { city: "Johor Bahru",   state: "Johor",                minZip: 80000, maxZip: 81200 },
+      { city: "George Town",   state: "Pulau Pinang",         minZip: 10000, maxZip: 11800 },
+      { city: "Ipoh",          state: "Perak",                minZip: 30000, maxZip: 31650 },
+      { city: "Melaka",        state: "Melaka",               minZip: 75000, maxZip: 75700 },
+      { city: "Kuching",       state: "Sarawak",              minZip: 93000, maxZip: 93900 },
+      { city: "Kota Kinabalu", state: "Sabah",                minZip: 88000, maxZip: 88850 },
+      { city: "Alor Setar",    state: "Kedah",                minZip: 05000, maxZip: 05200 },
+      { city: "Seremban",      state: "Negeri Sembilan",      minZip: 70000, maxZip: 70450 },
+      { city: "Kuantan",       state: "Pahang",               minZip: 25000, maxZip: 26600 },
+    ];
+
+    const ROAD_TYPES  = ["Jalan", "Lorong", "Persiaran", "Lebuh", "Jalan Bukit", "Jalan Sri"];
+    const ROAD_NAMES  = ["Damai", "Permai", "Indah", "Jaya", "Murni", "Bestari", "Utama", "Cempaka", "Melati", "Wawasan", "Harmoni", "Setia", "Bahagia", "Maju"];
+    const AREA_NAMES  = ["Taman", "Pandan", "Kepong", "Bangsar", "Cheras", "Ampang", "Bukit Jalil", "Mont Kiara", "Damansara", "Duta"];
+
+    function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function getHouseNumber() {
+      const n = rand(1, 280);
+      const r = Math.random();
+      if (r > 0.8) return `${rand(1, 40)}-${rand(1, 25)}`;
+      if (r > 0.65) return `${n}${pick(["A","B","C"])}`;
+      return `${n}`;
+    }
+
+    function generateAddress() {
+      const loc  = pick(CITIES_DB);
+      const type = pick(ROAD_TYPES);
+      const name = pick(ROAD_NAMES);
+      const area = Math.random() > 0.5 ? `, ${pick(AREA_NAMES)}` : "";
+      const street = `${getHouseNumber()}, ${type} ${name}${area}`;
+      const postcode = String(rand(loc.minZip, loc.maxZip)).padStart(5, "0");
+
+      return {
+        street,
+        postcode,
+        city:  loc.city,
+        state: loc.state,
+        full:  `${street}\n${postcode} ${loc.city}\n${loc.state}\nMALAYSIA`
+      };
+    }
+
+    function copySingle(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = "✓";
+        btn.classList.add("copied");
+        setTimeout(() => { btn.textContent = "⎘"; btn.classList.remove("copied"); }, 2000);
+      });
+    }
+
+    function renderAddress(addr) {
+      const card = document.getElementById("addressCard");
+      card.innerHTML = "";
+
+      // Card Header
+      const header = document.createElement("div");
+      header.className = "card-header";
+      header.innerHTML = `
+        <span class="card-header-label">Generated Address</span>
+        <span class="card-header-status"><span class="status-dot"></span>Verified Format</span>
+      `;
+      card.appendChild(header);
+
+      // Fields
+      const fields = [
+        { label: "Street Address", value: addr.street },
+        { label: "Postcode",       value: addr.postcode },
+        { label: "City",           value: addr.city },
+        { label: "State",          value: addr.state },
+      ];
+
+      const list = document.createElement("div");
+      list.className = "field-list";
+
+      fields.forEach(f => {
+        const row = document.createElement("div");
+        row.className = "field-row";
+        row.innerHTML = `
+          <div>
+            <div class="field-label">${f.label}</div>
+            <div class="field-value">${f.value}</div>
+          </div>
+          <button class="copy-btn" title="Copy">⎘</button>
+        `;
+        const btn = row.querySelector(".copy-btn");
+        btn.addEventListener("click", () => copySingle(btn, f.value));
+        list.appendChild(row);
+      });
+
+      card.appendChild(list);
+
+      // Full Address Block
+      const fullBlock = document.createElement("div");
+      fullBlock.className = "full-addr-row";
+      fullBlock.innerHTML = `
+        <div class="full-addr-top">
+          <div>
+            <div class="field-label" style="margin-bottom:6px;">Full Address</div>
+            <div class="full-addr-value">${addr.full}</div>
+          </div>
+        </div>
+        <div class="full-addr-footer">
+          <button class="copy-full-btn">📋 Copy Full Address</button>
+        </div>
+      `;
+      const copyFullBtn = fullBlock.querySelector(".copy-full-btn");
+      copyFullBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(addr.full).then(() => {
+          copyFullBtn.textContent = "✅ Copied!";
+          copyFullBtn.classList.add("copied");
+          setTimeout(() => {
+            copyFullBtn.textContent = "📋 Copy Full Address";
+            copyFullBtn.classList.remove("copied");
+          }, 2000);
+        });
+      });
+
+      card.appendChild(fullBlock);
+
+      // Animate in
+      card.style.animation = "none";
+      void card.offsetWidth;
+      card.style.animation = "fadeUp 0.3s ease forwards";
+    }
+
+    // Init
+    renderAddress(generateAddress());
+
+    document.getElementById("generateBtn").addEventListener("click", () => {
+      renderAddress(generateAddress());
+    });
+  </script>
+</body>
+</html>
